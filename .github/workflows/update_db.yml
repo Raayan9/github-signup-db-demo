@@ -1,0 +1,22 @@
+name: Update Database
+
+on:
+  repository_dispatch:
+    types: [signup_event]
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: 3.11
+      - run: pip install -r requirements.txt
+      - run: python signup.py "${{ github.event.client_payload.username }}" "${{ github.event.client_payload.email }}" "${{ github.event.client_payload.password }}"
+      - run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add database.db
+          git commit -m "Added user: ${{ github.event.client_payload.username }}"
+          git push
